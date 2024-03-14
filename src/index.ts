@@ -24,7 +24,7 @@ const getOHLCVs = async (symbol: string, interval: Interval, limit: string): Pro
 		const query = new URLSearchParams({ category: 'spot', symbol, interval, limit });
 		const res = await fetch(`${bybitUrl}?${query}`);
 		const kline: KlineResponse = await res.json();
-		const ohlcvs = kline.result.list.map((candle) => ({
+		const ohlcvs = kline.result.list?.map((candle) => ({
 			timestamp: parseFloat(candle[0]),
 			open: parseFloat(candle[1]),
 			high: parseFloat(candle[2]),
@@ -80,7 +80,7 @@ app.get('/', async (c) => {
 	const latestCandle = {
 		symbol,
 		interval,
-		dateTime: new Date(latestOHLCV.timestamp).toLocaleString('en-MS'),
+		dateTime: new Date(latestOHLCV?.timestamp).toLocaleString('en-MS'),
 		ohlcv: latestOHLCV,
 		rsi14: latestRSI14,
 		ema50: latestEMA50,
