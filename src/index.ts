@@ -67,7 +67,7 @@ const getBBs = (ohlcvs: OHLCV[]) => {
 
 const app = new Hono();
 
-// GET /?symbol=BTCUSDT&interval=60
+// GET /?symbol=BTCUSDT&interval=120
 app.get('/', async (c) => {
 	const symbol = c.req.query('symbol') ?? 'BTCUSDT';
 	const interval = (c.req.query('interval') as Interval) ?? '60';
