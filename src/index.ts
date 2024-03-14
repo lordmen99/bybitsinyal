@@ -1,4 +1,4 @@
-import { BollingerBands, EMA, RSI } from 'technicalindicators';
+import { BollingerBands, EMA, RSI, StochasticRSI } from 'technicalindicators';
 import { Hono } from 'hono';
 
 type OHLCV = {
@@ -46,6 +46,13 @@ const getRSIs = (ohlcvs: OHLCV[]) => {
 	return { rsi14, latestRSI14 };
 };
 
+const getStochRSIs = (ohlcvs: OHLCV[]) => {
+	const closes = ohlcvs.map((candle) => candle.close);
+	const stochRSI14 = StochasticRSI.calculate({ rsiPeriod: 14, stochasticPeriod: 14, kPeriod: 3, dPeriod: 3, values: closes });
+	const latestStochRSI14 = stochRSI14[stochRSI14.length - 1];
+	return { stochRSI14, latestStochRSI14 };
+};
+
 const getEMAs = (ohlcvs: OHLCV[]) => {
 	const closes = ohlcvs.map((candle) => candle.close);
 	const ema50 = EMA.calculate({ period: 50, values: closes });
@@ -74,6 +81,7 @@ app.get('/', async (c) => {
 	const limit = c.req.query('limit') ?? '250';
 	const ohlcv = await getOHLCVs(symbol, interval, limit);
 	const { latestRSI14 } = getRSIs(ohlcv);
+	const { latestStochRSI14 } = getStochRSIs(ohlcv);
 	const { latestEMA50, latestEMA200, trend } = getEMAs(ohlcv);
 	const { latestBB20 } = getBBs(ohlcv);
 	const latestOHLCV = ohlcv[ohlcv.length - 1];
@@ -83,6 +91,7 @@ app.get('/', async (c) => {
 		dateTime: new Date(latestOHLCV?.timestamp).toLocaleString('en-MS'),
 		ohlcv: latestOHLCV,
 		rsi14: latestRSI14,
+		stochRsi14: latestStochRSI14,
 		ema50: latestEMA50,
 		ema200: latestEMA200,
 		bb20: latestBB20,
